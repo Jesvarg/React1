@@ -23,8 +23,8 @@ jobs:
 
       - name: Construir y subir la imagen a Docker Hub
         run: |
-          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/react-app:latest .
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/react-app:latest
+          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/mi-react-app:latest .
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/mi-react-app:latest
 
   deploy:
     name: Deploy to EC2
@@ -39,10 +39,10 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
           script: |
-            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/react-app:latest
+            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/mi-react-app:latest
             docker stop my-react-app || true
             docker rm my-react-app || true
-            docker run -d -p 80:80 --name my-react-app ${{ secrets.DOCKER_HUB_USERNAME }}/react-app:latest
+            docker run -d -p 80:80 --name react-container ${{ secrets.DOCKER_HUB_USERNAME }}/mi-react-app:latest
 
       - name: Notificación en caso de éxito
         if: success()
