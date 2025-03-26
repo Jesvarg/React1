@@ -2,7 +2,7 @@
 FROM node:18
 
 # Establece el directorio de trabajo en el contenedor
-WORKDIR /app
+WORKDIR /otrapp
 
 # Copia los archivos necesarios para instalar dependencias
 COPY package*.json ./
