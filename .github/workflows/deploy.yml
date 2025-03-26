@@ -1,0 +1,53 @@
+name: Deploy to EC2 with Docker Hub
+
+on:
+  push:
+    branches:
+      - main  # Se ejecuta cuando hay un push en main
+
+
+jobs:
+  build:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v3
+
+      - name:  Iniciar sesión en Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Construir y subir la imagen a Docker Hub
+        run: |
+          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/mi-react-app:latest .
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/mi-react-app:latest
+
+  deploy:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+    needs: build  # Espera a que termine el job de build
+
+    steps:
+      - name: Conectarse a EC2 y actualizar la app
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          script: |
+            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/mi-react-app:latest
+            docker stop my-react-app || true
+            docker rm my-react-app || true
+            docker run -d -p 80:80 --name react-container ${{ secrets.DOCKER_HUB_USERNAME }}/mi-react-app:latest
+
+      - name: Notificación en caso de éxito
+        if: success()
+        run: echo "🚀 Despliegue exitoso en EC2"
+
+      - name: Notificación en caso de error
+        if: failure()
+        run: echo "❌ Falló el despliegue en EC2"
