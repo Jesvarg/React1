@@ -1,22 +1,19 @@
 # Usa la imagen base de Node.js
-FROM node:16 AS build
+FROM node:16
 
-# Establece el directorio de trabajo en el contenedor
+# Establece el directorio de trabajo
 WORKDIR /app
 
-# Copia los archivos necesarios para instalar dependencias
+# Copia el package.json y el package-lock.json
 COPY package*.json ./
 
 # Instala las dependencias
 RUN npm install
 
-# Asegurar permisos de ejecución en binarios de node_modules
-RUN chmod -R 777 /app/node_modules
-
-# Copia el resto del código fuente
+# Copia el resto de la aplicación
 COPY . .
 
-# Construye la aplicación
+# Construye la aplicación para producción
 RUN npm run build
 
 # Usa la imagen base de Nginx para servir la aplicación
