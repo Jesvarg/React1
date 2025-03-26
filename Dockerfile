@@ -1,5 +1,5 @@
 # Usa la imagen base de Node.js (versión moderna)
-FROM node:20 AS build
+FROM node:20
 
 # Establece el directorio de trabajo en el contenedor
 WORKDIR /app
@@ -20,7 +20,7 @@ RUN npm run build
 FROM nginx:alpine
 
 # Copia los archivos de construcción al directorio de Nginx
-COPY --from=build /app/build /usr/share/nginx/html
+COPY --from=0 /app/build /usr/share/nginx/html
 
 # Exponer el puerto 80
 EXPOSE 80
