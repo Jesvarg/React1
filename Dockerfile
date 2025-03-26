@@ -1,26 +1,26 @@
-# Usa la imagen base de Node.js
-FROM node:16
+# Usa la imagen base de Node.js (versión moderna)
+FROM node:20 AS build
 
-# Establece el directorio de trabajo
+# Establece el directorio de trabajo en el contenedor
 WORKDIR /app
 
-# Copia el package.json y el package-lock.json
+# Copia los archivos necesarios para instalar dependencias
 COPY package*.json ./
 
 # Instala las dependencias
-RUN npm install
+RUN npm install --legacy-peer-deps
 
-# Copia el resto de la aplicación
+# Copia el resto del código fuente
 COPY . .
 
-# Construye la aplicación para producción
+# Construye la aplicación
 RUN npm run build
 
 # Usa la imagen base de Nginx para servir la aplicación
 FROM nginx:alpine
 
 # Copia los archivos de construcción al directorio de Nginx
-COPY --from=0 /app/build /usr/share/nginx/html
+COPY --from=build /app/build /usr/share/nginx/html
 
 # Exponer el puerto 80
 EXPOSE 80
