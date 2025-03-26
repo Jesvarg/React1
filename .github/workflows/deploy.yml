@@ -5,6 +5,7 @@ on:
     branches:
       - main  # Se ejecuta cuando hay un push en main
 
+
 jobs:
   build:
     name: Build and Push Docker Image
